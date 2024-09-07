@@ -149,25 +149,41 @@ export class ControllerProducts {
     }
   }
 
+
+
+
   static async getSingleProducto(req, res) {
-    try {
-      
-      const { id } = req.params;
-      console.log(id);
+    
+      try {
+        const token = req.headers.authorization?.split(' ')[1]; 
   
-     
-      const productData = await productModel.getSingleProduct(id);
+        if (!token) {
+          return res.status(401).json({ error: "No token provided" });
+        }
   
-      
-      if (productData.length > 0) {
-        console.log(productData[0]);
-        res.json(productData[0]);
-      } else {
-        // Si el producto no existe, devolver un mensaje de error
-        res.status(404).json({ error: `Product with ID ${id} not found` });
-      }
+  
+        jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+          if (err) {
+            return res.status(401).json({ error: "Invalid token" });
+          }else{
+                const userId = decoded.idFinal; 
+                const { id } = req.params;
+                console.log(id); //es el id del producto que trae x el link
+    
+                const productData = await productModel.getSingleProduct(id, userId);
+    
+                if (productData.length > 0) {
+                  console.log(productData[0]);
+                  res.json(productData[0]);
+                } else {
+                  res.json({ error:'no hay' });
+                }
+              }
+  
+          }
+  
+        );
     } catch (error) {
-      // Manejar errores de manera adecuada
       console.error("Error during product retrieval:", error);
       res.status(500).json({ error: "An error occurred while retrieving product" });
     }

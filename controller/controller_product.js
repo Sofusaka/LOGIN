@@ -121,6 +121,9 @@ export class ControllerProducts {
 
   static async deleteFavorito(req, res) {
     try {
+      console.log("ELIMINANDO FAVORITO");
+      console.log(req.body);
+
       const token = req.headers.authorization?.split(' ')[1]; // Obtener el token del header
 
       if (!token) {
